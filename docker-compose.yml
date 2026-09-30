@@ -1,0 +1,42 @@
+services:
+  backend:
+    build: . # 로컬 Dockerfile로 직접 빌드
+    container_name: tenant-backend
+    ports:
+      - "8080:8080" # 호스트 컴퓨터 8080 포트를 컨테이너의 8080 포트와 매핑
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=postgres # 컨테이너 안에서는 localhost가 아니라 서비스 이름으로 접근
+    depends_on:
+      postgres: # postgres 라는 service에 의존
+        condition: service_healthy # postgres가 healthy(정상 작동)일 때 백엔드 컨테이너 실행
+    networks:
+      - tenant-network # postgres와 같은 네트워크 사용
+
+  postgres:
+    image: postgres:16
+    container_name: tenant-postgres
+    ports:
+      - "5432:5432" # 호스트 컴퓨터 5432 포트와 컨테이너의 PostgreSQL 5432 포트를 매핑
+    environment:
+      - POSTGRES_DB=tenant_db # 초기 생성될 데이터베이스 이름
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - TZ=Asia/Seoul
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d tenant_db" ]
+      interval: 5s # 5초 간격으로 체크
+      timeout: 5s
+      retries: 10 # 10번까지 재시도
+    networks:
+      - tenant-network # Spring Boot와 같은 네트워크에 있기 때문에 postgres 이름으로 접근
+
+networks:
+  tenant-network:
+    driver: bridge # Docker 기본 브리지 네트워크를 사용
+
+volumes:
+  postgres-data:
