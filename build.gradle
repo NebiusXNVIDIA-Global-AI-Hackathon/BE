@@ -33,6 +33,7 @@ dependencies {
     // DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.hibernate.orm:hibernate-vector'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
