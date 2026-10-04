@@ -1,0 +1,5 @@
+package com.tenant.tenantbackend.domain.cases.enums;
+
+public enum CaseStage {
+    LOGGED, NOTICE_READY, AWAITING_RESPONSE, RESPONSE_RECEIVED, REPAIR_SCHEDULED, REPAIR_DAY, VERIFYING, ESCALATED, DISPUTED, RESOLVED
+}
